@@ -1,0 +1,29 @@
+{
+  "version": "2",
+  "dialect": "postgresql",
+  "tables": {
+    "users": {
+      "columns": {
+        "id": {"type": "integer", "nullable": false},
+        "email": {"type": "varchar(255)", "nullable": false},
+        "username": {"type": "varchar(100)", "nullable": true},
+        "created_at": {"type": "timestamp", "nullable": true}
+      }
+    },
+    "orders": {
+      "columns": {
+        "id": {"type": "integer", "nullable": false},
+        "user_id": {"type": "integer", "nullable": false},
+        "total": {"type": "numeric(10,2)", "nullable": true},
+        "status": {"type": "varchar(50)", "nullable": false}
+      }
+    },
+    "products": {
+      "columns": {
+        "id": {"type": "integer", "nullable": false},
+        "name": {"type": "varchar(200)", "nullable": false},
+        "price": {"type": "numeric(8,2)", "nullable": false}
+      }
+    }
+  }
+}
