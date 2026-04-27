@@ -1,0 +1,12 @@
+{
+  "tables": {
+    "broken_table": {
+      "columns": {
+        "id": {
+          "type": "not_a_real_type",
+          "nullable": false
+        }
+      }
+    }
+  }
+}

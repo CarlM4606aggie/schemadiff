@@ -1,66 +1,70 @@
-"""Schema snapshot loading and parsing utilities."""
+"""Schema snapshot loading and representation."""
+
+from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, List, Optional
+
+from schemadiff.validator import validate_snapshot_dict, ValidationError  # noqa: F401
 
 
 class SchemaSnapshot:
-    """Represents a parsed database schema snapshot."""
+    """Represents a database schema at a point in time."""
 
-    def __init__(self, tables: dict[str, dict[str, Any]], source: str = ""):
-        self.tables = tables
+    def __init__(self, data: Dict[str, Any], source: str = "<unknown>") -> None:
+        self._data = data
         self.source = source
 
-    def table_names(self) -> set[str]:
-        return set(self.tables.keys())
+    @property
+    def table_names(self) -> List[str]:
+        return list(self._data.get("tables", {}).keys())
 
-    def get_table(self, name: str) -> dict[str, Any] | None:
-        return self.tables.get(name)
+    def get_table(self, name: str) -> Optional[Dict[str, Any]]:
+        return self._data.get("tables", {}).get(name)
 
     def __repr__(self) -> str:
-        return f"SchemaSnapshot(tables={list(self.tables.keys())}, source={self.source!r})"
+        return f"SchemaSnapshot(source={self.source!r}, tables={len(self.table_names)})"
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SchemaSnapshot):
+            return NotImplemented
+        return self._data == other._data
 
-def load_snapshot(path: str | Path) -> SchemaSnapshot:
-    """Load a schema snapshot from a JSON file.
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any], source: str = "<dict>") -> "SchemaSnapshot":
+        """Create a snapshot from a dictionary, validating structure first."""
+        validate_snapshot_dict(data, source)
+        return cls(data, source=source)
 
-    Expected format:
-    {
-        "tables": {
-            "users": {
-                "columns": {
-                    "id": {"type": "INTEGER", "nullable": false, "default": null},
-                    "email": {"type": "VARCHAR(255)", "nullable": false, "default": null}
-                },
-                "indexes": [...],
-                "primary_key": ["id"]
-            }
-        }
-    }
-    """
-    path = Path(path)
-    if not path.exists():
-        raise FileNotFoundError(f"Snapshot file not found: {path}")
-    if path.suffix not in (".json",):
-        raise ValueError(f"Unsupported snapshot format: {path.suffix}")
+    @classmethod
+    def from_file(cls, path: str | Path) -> "SchemaSnapshot":
+        """Load a snapshot from a JSON file.
 
-    with path.open("r", encoding="utf-8") as f:
-        raw = json.load(f)
+        Args:
+            path: Path to the JSON snapshot file.
 
-    if not isinstance(raw, dict):
-        raise ValueError("Snapshot root must be a JSON object")
+        Returns:
+            A validated SchemaSnapshot instance.
 
-    tables = raw.get("tables", {})
-    if not isinstance(tables, dict):
-        raise ValueError("'tables' must be a JSON object")
+        Raises:
+            FileNotFoundError: If the file does not exist.
+            ValueError: If the file format is unsupported or JSON is invalid.
+            ValidationError: If the snapshot structure is invalid.
+        """
+        path = Path(path)
 
-    return SchemaSnapshot(tables=tables, source=str(path))
+        if not path.exists():
+            raise FileNotFoundError(f"Snapshot file not found: {path}")
 
+        if path.suffix.lower() != ".json":
+            raise ValueError(f"Unsupported snapshot format: {path.suffix!r}. Only .json is supported.")
 
-def load_snapshot_from_dict(data: dict[str, Any], source: str = "<dict>") -> SchemaSnapshot:
-    """Load a schema snapshot from an already-parsed dictionary."""
-    tables = data.get("tables", {})
-    if not isinstance(tables, dict):
-        raise ValueError("'tables' must be a dict")
-    return SchemaSnapshot(tables=tables, source=source)
+        try:
+            raw = path.read_text(encoding="utf-8")
+            data = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"Invalid JSON in snapshot file {path}: {exc}") from exc
+
+        validate_snapshot_dict(data, source=str(path))
+        return cls(data, source=str(path))
