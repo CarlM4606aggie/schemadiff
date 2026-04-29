@@ -32,6 +32,10 @@ class DiffSummary:
         """Return True if any changes are present."""
         return self.total_changes > 0
 
+    def total_column_changes(self) -> int:
+        """Return the total number of column-level changes across all tables."""
+        return self.column_additions + self.column_drops + self.column_modifications
+
 
 def build_summary(diffs: List[TableDiff]) -> DiffSummary:
     """Build a DiffSummary from a list of TableDiff objects.
