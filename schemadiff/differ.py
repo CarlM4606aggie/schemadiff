@@ -27,6 +27,9 @@ def diff_and_patch(
     Returns:
         A SQL patch script as a string.
     """
+    if snapshot_a is None or snapshot_b is None:
+        raise ValueError("Both snapshot_a and snapshot_b must be provided.")
+
     diffs = compare_snapshots(snapshot_a, snapshot_b)
 
     if tables or change_types:
@@ -46,9 +49,16 @@ def diff_summary_and_patch(
     """
     Return both a summary dict and a SQL patch script.
 
+    Args:
+        snapshot_a: The baseline (older) snapshot.
+        snapshot_b: The target (newer) snapshot.
+
     Returns:
         dict with keys 'total_changes', 'patch'
     """
+    if snapshot_a is None or snapshot_b is None:
+        raise ValueError("Both snapshot_a and snapshot_b must be provided.")
+
     diffs = compare_snapshots(snapshot_a, snapshot_b)
     patch = generate_patch(diffs)
     return {
