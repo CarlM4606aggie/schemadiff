@@ -42,27 +42,29 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _load_snapshot(path: Path) -> SchemaSnapshot:
+    """Load a SchemaSnapshot from *path*, raising SystemExit on failure.
+
+    Separating this logic makes error handling consistent and keeps ``run``
+    easier to read.
+    """
+    if not path.exists():
+        print(f"Error: snapshot file not found: {path}", file=sys.stderr)
+        raise SystemExit(1)
+    try:
+        return SchemaSnapshot.load(str(path))
+    except Exception as exc:
+        print(f"Error loading snapshot '{path}': {exc}", file=sys.stderr)
+        raise SystemExit(1)
+
+
 def run(argv=None) -> int:
     """Entry point for the CLI. Returns an exit code."""
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    v1_path = Path(args.snapshot_v1)
-    v2_path = Path(args.snapshot_v2)
-
-    if not v1_path.exists():
-        print(f"Error: snapshot file not found: {v1_path}", file=sys.stderr)
-        return 1
-    if not v2_path.exists():
-        print(f"Error: snapshot file not found: {v2_path}", file=sys.stderr)
-        return 1
-
-    try:
-        snap1 = SchemaSnapshot.load(str(v1_path))
-        snap2 = SchemaSnapshot.load(str(v2_path))
-    except Exception as exc:
-        print(f"Error loading snapshots: {exc}", file=sys.stderr)
-        return 1
+    snap1 = _load_snapshot(Path(args.snapshot_v1))
+    snap2 = _load_snapshot(Path(args.snapshot_v2))
 
     diffs = diff_snapshots(snap1, snap2)
 
