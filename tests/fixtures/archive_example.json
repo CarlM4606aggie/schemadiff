@@ -1,0 +1,23 @@
+{
+  "entries": [
+    {
+      "timestamp": "2024-03-15T10:00:00+00:00",
+      "label": "staging-march",
+      "digest": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+      "total_changes": 4,
+      "diffs": [
+        {"table": "users", "change_type": "added"},
+        {"table": "sessions", "change_type": "modified"}
+      ]
+    },
+    {
+      "timestamp": "2024-04-01T08:30:00+00:00",
+      "label": "production-april",
+      "digest": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "total_changes": 2,
+      "diffs": [
+        {"table": "orders", "change_type": "dropped"}
+      ]
+    }
+  ]
+}
