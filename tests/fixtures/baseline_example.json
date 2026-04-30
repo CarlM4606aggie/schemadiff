@@ -1,0 +1,7 @@
+{
+  "entries": [
+    {"table_name": "users", "change_type": "added"},
+    {"table_name": "orders", "change_type": "modified"},
+    {"table_name": "legacy_logs", "change_type": "dropped"}
+  ]
+}
