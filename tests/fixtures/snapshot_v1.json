@@ -2,26 +2,23 @@
   "tables": {
     "users": {
       "columns": {
-        "id": {"type": "INTEGER", "nullable": false, "default": null},
-        "email": {"type": "VARCHAR(255)", "nullable": false, "default": null},
-        "created_at": {"type": "TIMESTAMP", "nullable": false, "default": "CURRENT_TIMESTAMP"}
-      },
-      "indexes": [
-        {"name": "uq_users_email", "columns": ["email"], "unique": true}
-      ],
-      "primary_key": ["id"]
+        "id": {"type": "int", "nullable": false},
+        "name": {"type": "varchar", "nullable": true},
+        "email": {"type": "varchar", "nullable": true}
+      }
     },
-    "posts": {
+    "orders": {
       "columns": {
-        "id": {"type": "INTEGER", "nullable": false, "default": null},
-        "user_id": {"type": "INTEGER", "nullable": false, "default": null},
-        "title": {"type": "VARCHAR(500)", "nullable": false, "default": null},
-        "body": {"type": "TEXT", "nullable": true, "default": null}
-      },
-      "indexes": [
-        {"name": "idx_posts_user_id", "columns": ["user_id"], "unique": false}
-      ],
-      "primary_key": ["id"]
+        "id": {"type": "int", "nullable": false},
+        "user_id": {"type": "int", "nullable": false},
+        "amount": {"type": "int", "nullable": true}
+      }
+    },
+    "legacy": {
+      "columns": {
+        "id": {"type": "int", "nullable": false},
+        "data": {"type": "text", "nullable": true}
+      }
     }
   }
 }
