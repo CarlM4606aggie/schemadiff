@@ -48,6 +48,15 @@ class MigrationPlan:
     def steps_for_phase(self, phase: int) -> List[MigrationStep]:
         return [s for s in self.steps if s.phase == phase]
 
+    def has_destructive_changes(self) -> bool:
+        """Return True if any step in the plan contains destructive changes.
+
+        A step is considered destructive when it carries at least one warning
+        note, which is generated for dropped tables, dropped columns, type
+        changes, and nullable tightening.
+        """
+        return any(bool(step.notes) for step in self.steps)
+
 
 def _build_notes(diff: TableDiff) -> List[str]:
     notes = []
