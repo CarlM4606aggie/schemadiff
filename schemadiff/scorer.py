@@ -55,7 +55,7 @@ def score_table_diff(diff: TableDiff) -> DiffScore:
             new_null = col_diff.new_definition.get("nullable", True)
             if old_null and not new_null:
                 total += 3
-                reasons.append(f"column '{col_diff.column_name}' nullable→not-null (+3)")
+                reasons.append(f"column '{col_diff.column_name}' nullable\u2192not-null (+3)")
 
     return DiffScore(table_name=diff.table_name, score=total, reasons=reasons)
 
@@ -69,3 +69,21 @@ def score_diffs(diffs: List[TableDiff]) -> List[DiffScore]:
 def total_score(diffs: List[TableDiff]) -> int:
     """Return the combined severity score across all diffs."""
     return sum(s.score for s in score_diffs(diffs))
+
+
+def summary(diffs: List[TableDiff]) -> str:
+    """Return a human-readable summary of scored diffs.
+
+    Lists each table with its score and the top reason, followed by
+    the combined total score.  Useful for logging or CLI output.
+    """
+    scores = score_diffs(diffs)
+    if not scores:
+        return "No diffs to score."
+
+    lines: List[str] = []
+    for ds in scores:
+        top_reason = ds.reasons[0] if ds.reasons else "no details"
+        lines.append(f"  {ds.table_name}: score={ds.score} ({top_reason})")
+    lines.append(f"Total score: {sum(ds.score for ds in scores)}")
+    return "\n".join(lines)
