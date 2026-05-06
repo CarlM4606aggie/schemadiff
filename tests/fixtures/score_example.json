@@ -1,0 +1,21 @@
+{
+  "scores": [
+    {
+      "table_name": "users",
+      "score": 2,
+      "reasons": ["column added"]
+    },
+    {
+      "table_name": "orders",
+      "score": 8,
+      "reasons": ["table dropped", "breaking change"]
+    },
+    {
+      "table_name": "products",
+      "score": 5,
+      "reasons": ["column type changed", "nullable tightened"]
+    }
+  ],
+  "total_score": 15,
+  "overall_risk": "high"
+}
