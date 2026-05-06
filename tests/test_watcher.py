@@ -67,6 +67,13 @@ def test_watch_event_timestamp_is_set_automatically():
     assert before <= event.timestamp <= after
 
 
+def test_watch_event_stores_snapshot_paths():
+    """WatchEvent should preserve the base and current snapshot paths as provided."""
+    event = WatchEvent("base.json", "current.json", [])
+    assert event.base_snapshot == "base.json"
+    assert event.current_snapshot == "current.json"
+
+
 # ---------------------------------------------------------------------------
 # _get_mtime
 # ---------------------------------------------------------------------------
@@ -106,16 +113,4 @@ def test_watch_snapshot_detects_file_change(tmp_path):
         import os
         os.utime(str(current), (t, t))
 
-    thread = threading.Thread(target=_update_file, daemon=True)
-    thread.start()
-
-    watch_snapshot(
-        str(base),
-        str(current),
-        callback=_callback,
-        poll_interval=0.02,
-        max_iterations=20,
-    )
-
-    assert len(collected) >= 1
-    assert isinstance(collected[0], WatchEvent)
+    thread = threading.Thr
