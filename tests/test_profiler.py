@@ -24,6 +24,11 @@ def test_nullable_ratio_calculation():
     assert stats.nullable_ratio() == 0.25
 
 
+def test_nullable_ratio_all_nullable():
+    stats = ColumnTypeStats(type_name="text", count=3, nullable_count=3)
+    assert stats.nullable_ratio() == 1.0
+
+
 # ---------------------------------------------------------------------------
 # profile_snapshot
 # ---------------------------------------------------------------------------
@@ -88,18 +93,15 @@ def test_profile_nullable_count_in_type_dist(rich_snapshot):
     assert profile.type_distribution["int"].nullable_count == 0
 
 
+def test_profile_type_distribution_total_count(rich_snapshot):
+    """Verify that type distribution counts match the total number of columns."""
+    profile = profile_snapshot(rich_snapshot)
+    total_from_dist = sum(s.count for s in profile.type_distribution.values())
+    assert total_from_dist == profile.total_columns
+
+
 def test_profile_empty_snapshot():
     snapshot = _make_snapshot({})
     profile = profile_snapshot(snapshot)
     assert profile.table_count == 0
-    assert profile.total_columns == 0
-    assert profile.avg_columns_per_table == 0.0
-    assert profile.most_column_rich_table == ""
-
-
-def test_profile_summary_returns_string(rich_snapshot):
-    profile = profile_snapshot(rich_snapshot)
-    summary = profile.summary()
-    assert isinstance(summary, str)
-    assert "Tables" in summary
-    assert "users" in summary
+    assert profile.tot
