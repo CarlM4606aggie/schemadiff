@@ -8,6 +8,8 @@ from schemadiff.reporter import generate_report
 
 OutputFormat = Literal["text", "json", "markdown"]
 
+VALID_FORMATS: tuple[str, ...] = ("text", "json", "markdown")
+
 
 def _diff_to_dict(diff: SchemaDiff) -> dict:
     """Serialize a SchemaDiff to a plain dictionary."""
@@ -63,7 +65,19 @@ def format_diff(
     output_format: OutputFormat = "text",
     title: str = "Schema Migration Diff",
 ) -> str:
-    """Format a SchemaDiff into the requested output format."""
+    """Format a SchemaDiff into the requested output format.
+
+    Args:
+        diff: The SchemaDiff object to format.
+        output_format: One of 'text', 'json', or 'markdown'. Defaults to 'text'.
+        title: A title string used in text and markdown output.
+
+    Returns:
+        A formatted string representation of the diff.
+
+    Raises:
+        ValueError: If an unsupported output format is provided.
+    """
     if output_format == "text":
         return generate_report(diff, title=title)
     elif output_format == "json":
@@ -71,4 +85,7 @@ def format_diff(
     elif output_format == "markdown":
         return _format_markdown(diff, title=title)
     else:
-        raise ValueError(f"Unsupported output format: {output_format!r}")
+        raise ValueError(
+            f"Unsupported output format: {output_format!r}. "
+            f"Valid formats are: {', '.join(VALID_FORMATS)}"
+        )
