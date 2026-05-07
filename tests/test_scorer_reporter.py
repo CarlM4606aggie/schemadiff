@@ -37,6 +37,18 @@ def test_risk_label_high():
     assert _risk_label(10) == "high"
 
 
+def test_risk_label_boundary_low_to_medium():
+    """Score of 4 is still low; 5 is the first medium value."""
+    assert _risk_label(4) == "low"
+    assert _risk_label(5) == "medium"
+
+
+def test_risk_label_boundary_medium_to_high():
+    """Score of 7 is still medium; 8 is the first high value."""
+    assert _risk_label(7) == "medium"
+    assert _risk_label(8) == "high"
+
+
 # ---------------------------------------------------------------------------
 # render_score_text
 # ---------------------------------------------------------------------------
@@ -77,6 +89,15 @@ def test_render_text_risk_label_present():
     assert "HIGH" in result
 
 
+def test_render_text_multiple_tables_all_present():
+    """All table names should appear when multiple scores are rendered."""
+    scores = [_score("users", 2), _score("orders", 5), _score("products", 8)]
+    result = render_score_text(scores)
+    assert "users" in result
+    assert "orders" in result
+    assert "products" in result
+
+
 # ---------------------------------------------------------------------------
 # render_score_markdown
 # ---------------------------------------------------------------------------
@@ -105,6 +126,4 @@ def test_render_markdown_contains_table_name():
 
 
 def test_render_markdown_contains_total_score():
-    scores = [_score("a", 3), _score("b", 4)]
-    result = render_score_markdown(scores)
-    assert "7" in result
+    scores = [_score("a", 3),
