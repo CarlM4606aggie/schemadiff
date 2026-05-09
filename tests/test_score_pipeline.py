@@ -53,6 +53,24 @@ def test_is_high_risk_default_threshold():
     assert result.is_high_risk() is True
 
 
+def test_is_high_risk_at_boundary():
+    """Score exactly equal to threshold should be considered high risk."""
+    result = ScorePipelineResult(
+        diffs=[], scores=[], total_score=5,
+        report_text="", report_markdown="",
+    )
+    assert result.is_high_risk(threshold=5) is True
+
+
+def test_is_high_risk_just_below_boundary():
+    """Score one below threshold should not be considered high risk."""
+    result = ScorePipelineResult(
+        diffs=[], scores=[], total_score=4,
+        report_text="", report_markdown="",
+    )
+    assert result.is_high_risk(threshold=5) is False
+
+
 # ---------------------------------------------------------------------------
 # run_score_pipeline
 # ---------------------------------------------------------------------------
@@ -92,4 +110,4 @@ def test_run_score_pipeline_empty_diffs():
 
 def test_run_score_pipeline_diffs_preserved(mixed_diffs):
     result = run_score_pipeline(mixed_diffs)
-    assert result.diffs is mixed_diffs
+    assert result.diffs == mixed_diffs
